@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>URL Shortener</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notelink</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
-    <div class="container">
-        <h1>URL Shortener</h1>
-        <input type="text" id="urlInput" placeholder="Вставьте длинную ссылку...">
-        <button onclick="shortenUrl()">Сократить</button>
-
-        <div id="result" class="hidden">
-            <p>Короткая ссылка:</p>
-            <a id="shortLink" href="#" target="_blank"></a>
-        </div>
+<body class="hero-body">
+  <div class="hero">
+    <div class="logo">Notelink</div>
+    <h1>Notes with <span>smart</span> links</h1>
+    <p class="subtitle">Пиши заметки, вставляй ссылки —<br>они сокращаются автоматически.</p>
+    <div class="btn-group">
+      <a href="/register" class="btn btn-primary">Начать бесплатно</a>
+      <a href="/login" class="btn btn-secondary">Войти</a>
     </div>
-    <script src="/static/script.js"></script>
+  </div>
 </body>
 </html>

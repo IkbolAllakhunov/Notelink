@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notelink</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/notes.css">
+</head>
+<body class="notes-body">
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo">Notelink</div>
+      <div class="user-row">
+        <div class="user-info">
+          <div class="avatar" id="avatarEl"></div>
+          <span class="username" id="usernameEl">{{ username }}</span>
+        </div>
+        <button class="logout-btn" onclick="doLogout()">Выйти</button>
+      </div>
+    </div>
+    <button class="new-note-btn" onclick="createNote()">
+      <span class="plus-icon">+</span> Новая заметка
+    </button>
+    <div class="notes-list" id="notesList"></div>
+  </div>
+
+  <div class="main">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">📝</div>
+      <div class="empty-text">Выбери заметку или создай новую</div>
+    </div>
+    <div id="editor" style="display:none;flex:1;flex-direction:column;overflow:hidden">
+      <div class="topbar">
+        <input class="title-input" id="titleInput" placeholder="Название заметки...">
+        <div class="top-actions">
+          <button class="btn-sm btn-delete" onclick="deleteNote()">Удалить</button>
+          <button class="btn-sm btn-save" id="saveBtn" onclick="saveNote()">Сохранить</button>
+        </div>
+      </div>
+      <div class="editor-wrap">
+        <textarea class="content-area" id="contentArea" placeholder="Начни писать..."></textarea>
+        <div class="url-section">
+          <div class="url-label">Сократить ссылку</div>
+          <div class="url-row">
+            <input class="url-input" id="urlInput" placeholder="https://...">
+            <button class="shorten-btn" onclick="doShorten()">Сократить →</button>
+          </div>
+          <div class="short-result" id="shortResult">
+            <span class="short-tag">Ссылка</span>
+            <span class="short-url" id="shortUrl"></span>
+            <button class="copy-btn" onclick="doCopy()">Копировать</button>
+            <button class="insert-btn" onclick="insertToNote()">Вставить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const USERNAME = "{{ username }}";
+  </script>
+  <script src="/static/notes.js"></script>
+</body>
+</html>
