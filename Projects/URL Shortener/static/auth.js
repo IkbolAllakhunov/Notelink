@@ -53,7 +53,6 @@ async function doRegister() {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
-    const btn = document.getElementById('submitBtn');
-    btn.click();
+    document.getElementById('submitBtn').click();
   }
 });
