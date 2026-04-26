@@ -103,7 +103,7 @@ async function confirmDeleteAll() {
     'Удалить все заметки?',
     `Будет удалено ${notes.length} заметок. Это нельзя отменить.`,
     async () => {
-      for (const n of notes) {
+      for (const n of [...notes]) {
         await fetch(`/api/notes/${n.id}`, { method: 'DELETE' });
       }
       notes = [];
@@ -111,7 +111,10 @@ async function confirmDeleteAll() {
       currentNote = null;
       document.getElementById('editor').style.display = 'none';
       document.getElementById('emptyState').style.display = 'flex';
-      toggleSelectMode();
+      selectMode = false;
+      document.getElementById('selectModeBtn').style.display = 'flex';
+      document.getElementById('selectActions').classList.remove('show');
+      renderList();
     }
   );
 }
