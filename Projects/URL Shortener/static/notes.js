@@ -1,5 +1,8 @@
 let notes = [];
 let currentNote = null;
+let selectMode = false;
+let selectedIds = new Set();
+let pendingAction = null;
 
 document.getElementById('avatarEl').textContent = USERNAME.slice(0, 2).toUpperCase();
 
@@ -12,16 +15,124 @@ async function loadNotes() {
 function renderList() {
   const list = document.getElementById('notesList');
   list.innerHTML = '';
+
+  if (selectMode) {
+    list.classList.add('select-mode');
+  } else {
+    list.classList.remove('select-mode');
+  }
+
   notes.forEach(n => {
     const div = document.createElement('div');
-    div.className = 'note-item' + (currentNote && currentNote.id === n.id ? ' active' : '');
+    const isSelected = selectedIds.has(n.id);
+    div.className = 'note-item' +
+      (currentNote && currentNote.id === n.id && !selectMode ? ' active' : '') +
+      (isSelected ? ' selected' : '');
+
     div.innerHTML = `
-      <div class="note-item-title">${n.title || 'Без названия'}</div>
-      <div class="note-item-preview">${(n.content || '').slice(0, 50)}</div>
+      <div class="checkbox">${isSelected ? '✓' : ''}</div>
+      <div class="note-item-content">
+        <div class="note-item-title">${n.title || 'Без названия'}</div>
+        <div class="note-item-preview">${(n.content || '').slice(0, 50)}</div>
+      </div>
     `;
-    div.onclick = () => openNote(n);
+
+    div.onclick = () => {
+      if (selectMode) {
+        toggleSelect(n.id);
+      } else {
+        openNote(n);
+      }
+    };
+
     list.appendChild(div);
   });
+}
+
+function toggleSelect(id) {
+  if (selectedIds.has(id)) {
+    selectedIds.delete(id);
+  } else {
+    selectedIds.add(id);
+  }
+  renderList();
+}
+
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  selectedIds.clear();
+
+  const btn = document.getElementById('selectModeBtn');
+  const actions = document.getElementById('selectActions');
+
+  if (selectMode) {
+    btn.style.display = 'none';
+    actions.classList.add('show');
+  } else {
+    btn.style.display = 'flex';
+    actions.classList.remove('show');
+  }
+
+  renderList();
+}
+
+async function deleteSelected() {
+  if (selectedIds.size === 0) return;
+
+  showConfirm(
+    `Удалить ${selectedIds.size} заметок?`,
+    'Это действие нельзя отменить.',
+    async () => {
+      for (const id of selectedIds) {
+        await fetch(`/api/notes/${id}`, { method: 'DELETE' });
+      }
+      if (currentNote && selectedIds.has(currentNote.id)) {
+        currentNote = null;
+        document.getElementById('editor').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'flex';
+      }
+      notes = notes.filter(n => !selectedIds.has(n.id));
+      selectedIds.clear();
+      toggleSelectMode();
+    }
+  );
+}
+
+async function confirmDeleteAll() {
+  showConfirm(
+    'Удалить все заметки?',
+    `Будет удалено ${notes.length} заметок. Это нельзя отменить.`,
+    async () => {
+      for (const n of notes) {
+        await fetch(`/api/notes/${n.id}`, { method: 'DELETE' });
+      }
+      notes = [];
+      selectedIds.clear();
+      currentNote = null;
+      document.getElementById('editor').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'flex';
+      toggleSelectMode();
+    }
+  );
+}
+
+function showConfirm(title, text, action) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmText').textContent = text;
+  document.getElementById('confirmDialog').style.display = 'flex';
+  pendingAction = action;
+}
+
+async function confirmAction() {
+  closeConfirm();
+  if (pendingAction) {
+    await pendingAction();
+    pendingAction = null;
+  }
+}
+
+function closeConfirm() {
+  document.getElementById('confirmDialog').style.display = 'none';
 }
 
 function openNote(note) {
@@ -39,8 +150,8 @@ function openNote(note) {
 async function createNote() {
   const res = await fetch('/api/notes', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({title: 'Новая заметка', content: ''})
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: 'Новая заметка', content: '' })
   });
   const note = await res.json();
   notes.unshift(note);
@@ -55,7 +166,7 @@ async function saveNote() {
 
   await fetch(`/api/notes/${currentNote.id}`, {
     method: 'PUT',
-    headers: {'Content-Type': 'application/json'},
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       title: document.getElementById('titleInput').value,
       content: document.getElementById('contentArea').value
@@ -75,12 +186,18 @@ async function saveNote() {
 
 async function deleteNote() {
   if (!currentNote) return;
-  await fetch(`/api/notes/${currentNote.id}`, {method: 'DELETE'});
-  notes = notes.filter(n => n.id !== currentNote.id);
-  currentNote = null;
-  document.getElementById('editor').style.display = 'none';
-  document.getElementById('emptyState').style.display = 'flex';
-  renderList();
+  showConfirm(
+    'Удалить заметку?',
+    'Это действие нельзя отменить.',
+    async () => {
+      await fetch(`/api/notes/${currentNote.id}`, { method: 'DELETE' });
+      notes = notes.filter(n => n.id !== currentNote.id);
+      currentNote = null;
+      document.getElementById('editor').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'flex';
+      renderList();
+    }
+  );
 }
 
 async function doShorten() {
@@ -93,8 +210,8 @@ async function doShorten() {
 
   const res = await fetch('/api/shorten', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({url})
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url })
   });
 
   const data = await res.json();
@@ -124,7 +241,7 @@ function insertToNote() {
 }
 
 async function doLogout() {
-  await fetch('/api/logout', {method: 'POST'});
+  await fetch('/api/logout', { method: 'POST' });
   window.location.href = '/';
 }
 

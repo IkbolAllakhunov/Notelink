@@ -22,6 +22,14 @@
     <button class="new-note-btn" onclick="createNote()">
       <span class="plus-icon">+</span> Новая заметка
     </button>
+    <button class="select-mode-btn" id="selectModeBtn" onclick="toggleSelectMode()">
+      ☑ Выбрать заметки
+    </button>
+    <div class="select-actions" id="selectActions">
+      <button class="btn-delete-selected" onclick="deleteSelected()">Удалить выбранные</button>
+      <button class="btn-delete-all" onclick="confirmDeleteAll()">Удалить все</button>
+      <button class="btn-cancel-select" onclick="toggleSelectMode()">✕</button>
+    </div>
     <div class="notes-list" id="notesList"></div>
   </div>
 
@@ -53,6 +61,18 @@
             <button class="insert-btn" onclick="insertToNote()">Вставить</button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm dialog -->
+  <div class="delete-confirm" id="confirmDialog" style="display:none">
+    <div class="delete-confirm-box">
+      <h3 id="confirmTitle">Удалить заметки?</h3>
+      <p id="confirmText">Это действие нельзя отменить.</p>
+      <div class="delete-confirm-actions">
+        <button class="btn-confirm-cancel" onclick="closeConfirm()">Отмена</button>
+        <button class="btn-confirm-delete" id="confirmBtn" onclick="confirmAction()">Удалить</button>
       </div>
     </div>
   </div>
