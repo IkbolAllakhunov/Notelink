@@ -33,7 +33,7 @@ async function doRegister() {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
-      username: document.getElementById('username') ? document.getElementById('username').value : '',
+      username: document.getElementById('username').value,
       email: document.getElementById('email').value,
       password: document.getElementById('password').value
     })
@@ -52,7 +52,5 @@ async function doRegister() {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    document.getElementById('submitBtn').click();
-  }
+  if (e.key === 'Enter') document.getElementById('submitBtn').click();
 });

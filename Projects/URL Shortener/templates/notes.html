@@ -46,8 +46,60 @@
           <button class="btn-sm btn-save" id="saveBtn" onclick="saveNote()">Сохранить</button>
         </div>
       </div>
+
+      <!-- Rich text toolbar -->
+      <div class="toolbar" id="toolbar">
+        <div class="toolbar-group">
+          <select class="toolbar-select" id="fontSizeSelect" onchange="applyFontSize(this.value)" title="Размер шрифта">
+            <option value="">Размер</option>
+            <option value="1">Мелкий</option>
+            <option value="3">Обычный</option>
+            <option value="5">Большой</option>
+            <option value="7">Огромный</option>
+          </select>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+          <button class="toolbar-btn" onclick="execCmd('bold')" title="Жирный (Ctrl+B)" data-cmd="bold"><b>B</b></button>
+          <button class="toolbar-btn" onclick="execCmd('italic')" title="Курсив (Ctrl+I)" data-cmd="italic"><i>I</i></button>
+          <button class="toolbar-btn" onclick="execCmd('underline')" title="Подчёркнутый (Ctrl+U)" data-cmd="underline"><u>U</u></button>
+          <button class="toolbar-btn" onclick="execCmd('strikeThrough')" title="Зачёркнутый" data-cmd="strikeThrough"><s>S</s></button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+          <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="Маркированный список" data-cmd="insertUnorderedList">≡•</button>
+          <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="Нумерованный список" data-cmd="insertOrderedList">1.</button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+          <button class="toolbar-btn" onclick="execCmd('justifyLeft')" title="По левому краю" data-cmd="justifyLeft">⬅</button>
+          <button class="toolbar-btn" onclick="execCmd('justifyCenter')" title="По центру" data-cmd="justifyCenter">↔</button>
+          <button class="toolbar-btn" onclick="execCmd('justifyRight')" title="По правому краю" data-cmd="justifyRight">➡</button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group toolbar-colors">
+          <div class="color-wrap" title="Цвет текста">
+            <span class="color-label">A</span>
+            <input type="color" class="color-input" id="textColor" value="#ffffff" onchange="applyTextColor(this.value)">
+          </div>
+          <div class="color-wrap highlight-wrap" title="Выделение">
+            <span class="color-label" style="background:#facc15;color:#111">A</span>
+            <input type="color" class="color-input" id="highlightColor" value="#facc15" onchange="applyHighlight(this.value)">
+          </div>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+          <button class="toolbar-btn" onclick="execCmd('removeFormat')" title="Убрать форматирование">✕</button>
+        </div>
+      </div>
+
       <div class="editor-wrap">
-        <textarea class="content-area" id="contentArea" placeholder="Начни писать..."></textarea>
+        <div
+          class="content-area rich-editor"
+          id="contentArea"
+          contenteditable="true"
+          data-placeholder="Начни писать..."
+        ></div>
         <div class="url-section">
           <div class="url-label">Сократить ссылку</div>
           <div class="url-row">

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, redirect, render_template, abort, session
+from flask import Flask, request, jsonify, redirect, render_template, abort
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from database import get_connection
