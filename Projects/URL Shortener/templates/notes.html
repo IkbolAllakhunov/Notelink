@@ -133,6 +133,41 @@
     </div>
   </div>
 
+
+  <!-- AI Chat Widget -->
+  <div class="ai-chat-bubble" id="chatBubble" onclick="toggleChat()" title="ИИ Ассистент">
+    <span class="ai-bubble-icon" id="bubbleIcon">✦</span>
+  </div>
+
+  <div class="ai-chat-panel" id="chatPanel">
+    <div class="ai-chat-header">
+      <div class="ai-chat-title">
+        <span class="ai-title-icon">✦</span>
+        <span>ИИ Ассистент</span>
+      </div>
+      <div class="ai-chat-header-actions">
+        <button class="ai-clear-btn" onclick="clearChat()" title="Очистить чат">↺</button>
+        <button class="ai-close-btn" onclick="toggleChat()">✕</button>
+      </div>
+    </div>
+    <div class="ai-messages" id="aiMessages">
+      <div class="ai-msg ai-msg-bot">
+        <span>Привет! Я ИИ ассистент Notelink. Могу помочь с заметками, идеями или ответить на любые вопросы ✦</span>
+      </div>
+    </div>
+    <div class="ai-chat-input-wrap">
+      <textarea
+        class="ai-chat-input"
+        id="aiInput"
+        placeholder="Напиши сообщение..."
+        rows="1"
+        onkeydown="handleChatKey(event)"
+        oninput="autoResizeInput(this)"
+      ></textarea>
+      <button class="ai-send-btn" id="aiSendBtn" onclick="sendChatMessage()">↑</button>
+    </div>
+  </div>
+
   <script>
     const USERNAME = "{{ username }}";
   </script>

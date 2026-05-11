@@ -208,3 +208,45 @@ def redirect_url(code):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+# API Chat (AI)
+@app.route('/api/chat', methods=['POST'])
+@login_required
+def chat():
+    data = request.get_json()
+    messages = data.get('messages', [])
+    if not messages:
+        return jsonify({'error': 'Нет сообщений'}), 400
+
+    api_key = os.environ.get('GROQ_API_KEY', '')
+    if not api_key:
+        return jsonify({'error': 'API ключ не настроен.'}), 500
+
+    try:
+        resp = requests.post(
+            'https://api.groq.com/openai/v1/chat/completions',
+            headers={
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json',
+            },
+            json={
+                'model': 'llama-3.3-70b-versatile',
+                'max_tokens': 1024,
+                'temperature': 0.7,
+                'messages': [
+                    {
+                        'role': 'system',
+                        'content': 'Ты умный ассистент встроенный в приложение Notelink — это сервис заметок с сокращением ссылок. Отвечай кратко и по делу. Если пользователь просит помочь с заметками или ссылками — помогай. Отвечай на том языке, на котором пишет пользователь.'
+                    }
+                ] + messages
+            },
+            timeout=30
+        )
+        result = resp.json()
+        if 'choices' in result:
+            reply = result['choices'][0]['message']['content']
+            return jsonify({'reply': reply})
+        else:
+            error_msg = result.get('error', {}).get('message', 'Ошибка Groq API')
+            return jsonify({'error': error_msg}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

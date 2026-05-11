@@ -404,3 +404,111 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 loadNotes();
+
+// ───────────────────────────────────────────
+// AI Chat
+// ───────────────────────────────────────────
+
+let chatOpen = false;
+let chatHistory = [];
+let chatBusy = false;
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  const panel = document.getElementById('chatPanel');
+  const icon = document.getElementById('bubbleIcon');
+  if (chatOpen) {
+    panel.classList.add('open');
+    icon.textContent = '✕';
+    setTimeout(() => document.getElementById('aiInput').focus(), 220);
+  } else {
+    panel.classList.remove('open');
+    icon.textContent = '✦';
+  }
+}
+
+function clearChat() {
+  chatHistory = [];
+  const msgs = document.getElementById('aiMessages');
+  msgs.innerHTML = '<div class="ai-msg ai-msg-bot"><span>Чат очищен. Чем могу помочь? ✦</span></div>';
+}
+
+function appendMessage(text, role) {
+  const msgs = document.getElementById('aiMessages');
+  const div = document.createElement('div');
+  div.className = 'ai-msg ' + (role === 'user' ? 'ai-msg-user' : 'ai-msg-bot');
+  const span = document.createElement('span');
+  span.textContent = text;
+  div.appendChild(span);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('aiMessages');
+  const div = document.createElement('div');
+  div.className = 'ai-msg ai-msg-bot typing';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<span><span class="ai-typing-dots"><span></span><span></span><span></span></span></span>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+async function sendChatMessage() {
+  if (chatBusy) return;
+  const input = document.getElementById('aiInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = '';
+  chatBusy = true;
+  document.getElementById('aiSendBtn').disabled = true;
+
+  appendMessage(text, 'user');
+  chatHistory.push({ role: 'user', content: text });
+
+  showTyping();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: chatHistory })
+    });
+    const data = await res.json();
+    hideTyping();
+
+    if (data.reply) {
+      appendMessage(data.reply, 'bot');
+      chatHistory.push({ role: 'assistant', content: data.reply });
+    } else {
+      appendMessage('Ошибка: ' + (data.error || 'Что-то пошло не так'), 'bot');
+    }
+  } catch (e) {
+    hideTyping();
+    appendMessage('Ошибка соединения. Проверь настройки сервера.', 'bot');
+  }
+
+  chatBusy = false;
+  document.getElementById('aiSendBtn').disabled = false;
+  input.focus();
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChatMessage();
+  }
+}
+
+function autoResizeInput(el) {
+  el.style.height = '';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
