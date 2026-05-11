@@ -50,13 +50,17 @@
       <!-- Rich text toolbar -->
       <div class="toolbar" id="toolbar">
         <div class="toolbar-group">
-          <select class="toolbar-select" id="fontSizeSelect" onchange="applyFontSize(this.value)" title="Размер шрифта">
-            <option value="">Размер</option>
-            <option value="1">Мелкий</option>
-            <option value="3">Обычный</option>
-            <option value="5">Большой</option>
-            <option value="7">Огромный</option>
-          </select>
+          <input
+            class="toolbar-input-px"
+            id="fontSizePx"
+            type="number"
+            min="8"
+            max="96"
+            placeholder="px"
+            title="Размер шрифта в пикселях"
+            onkeydown="if(event.key==='Enter'){applyFontSizePx(this.value);this.blur();}"
+            onblur="applyFontSizePx(this.value)"
+          >
         </div>
         <div class="toolbar-divider"></div>
         <div class="toolbar-group">
@@ -78,13 +82,13 @@
         </div>
         <div class="toolbar-divider"></div>
         <div class="toolbar-group toolbar-colors">
-          <div class="color-wrap" title="Цвет текста">
+          <div class="color-wrap" title="Цвет текста" onmousedown="saveSelectionBeforeColor(event)">
             <span class="color-label">A</span>
-            <input type="color" class="color-input" id="textColor" value="#ffffff" onchange="applyTextColor(this.value)">
+            <input type="color" class="color-input" id="textColor" value="#ffffff" oninput="applyTextColor(this.value)" onchange="applyTextColor(this.value)">
           </div>
-          <div class="color-wrap highlight-wrap" title="Выделение">
+          <div class="color-wrap highlight-wrap" title="Выделение" onmousedown="saveSelectionBeforeColor(event)">
             <span class="color-label" style="background:#facc15;color:#111">A</span>
-            <input type="color" class="color-input" id="highlightColor" value="#facc15" onchange="applyHighlight(this.value)">
+            <input type="color" class="color-input" id="highlightColor" value="#facc15" oninput="applyHighlight(this.value)" onchange="applyHighlight(this.value)">
           </div>
         </div>
         <div class="toolbar-divider"></div>

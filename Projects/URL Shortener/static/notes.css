@@ -711,6 +711,38 @@
   color: #aaa;
 }
 
+/* Pixel font-size input */
+.toolbar-input-px {
+  width: 52px;
+  height: 28px;
+  padding: 0 6px;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  color: #aaa;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  -moz-appearance: textfield;
+}
+
+.toolbar-input-px::-webkit-outer-spin-button,
+.toolbar-input-px::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.toolbar-input-px::placeholder {
+  color: #444;
+}
+
+.toolbar-input-px:hover,
+.toolbar-input-px:focus {
+  border-color: #534AB7;
+  color: #ccc;
+}
+
 /* Color pickers */
 .toolbar-colors {
   gap: 4px;

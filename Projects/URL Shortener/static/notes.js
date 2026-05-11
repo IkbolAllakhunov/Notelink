@@ -16,23 +16,66 @@ function execCmd(cmd, value = null) {
   updateToolbarState();
 }
 
-function applyFontSize(size) {
-  if (!size) return;
-  document.getElementById('contentArea').focus();
-  document.execCommand('fontSize', false, size);
-  // reset select back to placeholder
-  setTimeout(() => { document.getElementById('fontSizeSelect').value = ''; }, 100);
+// ── Pixel font size ──────────────────────────────────────
+function applyFontSizePx(px) {
+  const size = parseInt(px);
+  if (!size || size < 8 || size > 96) return;
+  const area = document.getElementById('contentArea');
+  area.focus();
+  // Restore saved selection if we lost focus to the input
+  if (savedRange) restoreSelection();
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+  // Wrap selection in a span with explicit font-size
+  const range = sel.getRangeAt(0);
+  const span = document.createElement('span');
+  span.style.fontSize = size + 'px';
+  try {
+    range.surroundContents(span);
+  } catch (e) {
+    // surroundContents fails on partial selections across tags; use execCommand fallback
+    document.execCommand('fontSize', false, '7');
+    area.querySelectorAll('font[size="7"]').forEach(el => {
+      el.removeAttribute('size');
+      el.style.fontSize = size + 'px';
+    });
+  }
+  sel.removeAllRanges();
   updateToolbarState();
 }
 
+// ── Saved selection for color pickers ───────────────────
+let savedRange = null;
+
+function saveSelectionBeforeColor(e) {
+  // Don't prevent default — we still want the color picker to open
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0) {
+    savedRange = sel.getRangeAt(0).cloneRange();
+  }
+}
+
+function restoreSelection() {
+  if (!savedRange) return;
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(savedRange);
+}
+
 function applyTextColor(color) {
-  document.getElementById('contentArea').focus();
+  const area = document.getElementById('contentArea');
+  area.focus();
+  if (savedRange) restoreSelection();
   document.execCommand('foreColor', false, color);
 }
 
 function applyHighlight(color) {
-  document.getElementById('contentArea').focus();
-  document.execCommand('hiliteColor', false, color);
+  const area = document.getElementById('contentArea');
+  area.focus();
+  if (savedRange) restoreSelection();
+  // hiliteColor is not supported in all browsers; backColor is the safer alias
+  const ok = document.execCommand('hiliteColor', false, color);
+  if (!ok) document.execCommand('backColor', false, color);
 }
 
 // Highlight active toolbar buttons based on current selection
