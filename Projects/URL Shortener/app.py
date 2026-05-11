@@ -5,6 +5,7 @@ from database import get_connection
 import random
 import string
 import os
+import requests
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123")
@@ -219,7 +220,7 @@ def chat():
 
     api_key = os.environ.get('GROQ_API_KEY', '')
     if not api_key:
-        return jsonify({'error': 'API ключ не настроен.'}), 500
+        return jsonify({'error': 'API ключ не настроен. Добавь GROQ_API_KEY в переменные окружения.'}), 500
 
     try:
         resp = requests.post(

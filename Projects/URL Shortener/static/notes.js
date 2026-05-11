@@ -264,6 +264,9 @@ function openNote(note) {
 
   document.getElementById('shortResult').classList.remove('show');
   document.getElementById('urlInput').value = '';
+  // Reset to note tab and clear chat on note switch
+  switchTab('note');
+  clearChat();
   renderList();
 }
 
@@ -383,6 +386,9 @@ function insertToNote() {
   }
   document.getElementById('shortResult').classList.remove('show');
   document.getElementById('urlInput').value = '';
+  // Reset to note tab and clear chat on note switch
+  switchTab('note');
+  clearChat();
   updatePlaceholder();
 }
 
@@ -406,26 +412,35 @@ document.addEventListener('DOMContentLoaded', () => {
 loadNotes();
 
 // ───────────────────────────────────────────
+// Tabs
+// ───────────────────────────────────────────
+
+function switchTab(tab) {
+  const notePanel = document.getElementById('panelNote');
+  const chatPanel = document.getElementById('panelChat');
+  const tabNote   = document.getElementById('tabNote');
+  const tabChat   = document.getElementById('tabChat');
+
+  if (tab === 'note') {
+    notePanel.style.display = 'flex';
+    chatPanel.style.display = 'none';
+    tabNote.classList.add('active');
+    tabChat.classList.remove('active');
+  } else {
+    notePanel.style.display = 'none';
+    chatPanel.style.display = 'flex';
+    tabChat.classList.add('active');
+    tabNote.classList.remove('active');
+    setTimeout(() => document.getElementById('aiInput').focus(), 50);
+  }
+}
+
+// ───────────────────────────────────────────
 // AI Chat
 // ───────────────────────────────────────────
 
-let chatOpen = false;
 let chatHistory = [];
 let chatBusy = false;
-
-function toggleChat() {
-  chatOpen = !chatOpen;
-  const panel = document.getElementById('chatPanel');
-  const icon = document.getElementById('bubbleIcon');
-  if (chatOpen) {
-    panel.classList.add('open');
-    icon.textContent = '✕';
-    setTimeout(() => document.getElementById('aiInput').focus(), 220);
-  } else {
-    panel.classList.remove('open');
-    icon.textContent = '✦';
-  }
-}
 
 function clearChat() {
   chatHistory = [];
@@ -448,7 +463,7 @@ function appendMessage(text, role) {
 function showTyping() {
   const msgs = document.getElementById('aiMessages');
   const div = document.createElement('div');
-  div.className = 'ai-msg ai-msg-bot typing';
+  div.className = 'ai-msg ai-msg-bot';
   div.id = 'typingIndicator';
   div.innerHTML = '<span><span class="ai-typing-dots"><span></span><span></span><span></span></span></span>';
   msgs.appendChild(div);
@@ -473,7 +488,6 @@ async function sendChatMessage() {
 
   appendMessage(text, 'user');
   chatHistory.push({ role: 'user', content: text });
-
   showTyping();
 
   try {
@@ -484,7 +498,6 @@ async function sendChatMessage() {
     });
     const data = await res.json();
     hideTyping();
-
     if (data.reply) {
       appendMessage(data.reply, 'bot');
       chatHistory.push({ role: 'assistant', content: data.reply });
@@ -493,7 +506,7 @@ async function sendChatMessage() {
     }
   } catch (e) {
     hideTyping();
-    appendMessage('Ошибка соединения. Проверь настройки сервера.', 'bot');
+    appendMessage('Ошибка соединения.', 'bot');
   }
 
   chatBusy = false;
@@ -510,5 +523,5 @@ function handleChatKey(e) {
 
 function autoResizeInput(el) {
   el.style.height = '';
-  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
